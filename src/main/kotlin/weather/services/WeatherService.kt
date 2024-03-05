@@ -107,7 +107,6 @@ class WeatherService(
                 weatherDataDao.save(weatherData)
             }
         } catch (e: Exception) {
-            // Log or handle the exception accordingly
         }
     }
 }
