@@ -133,8 +133,7 @@ class GPTService(private val openaiapikey: String) {
             val content = message.getAsJsonPrimitive("content").asString
             content
         } catch (e: Exception) {
-            println("Error parsing ChatGPT response: ${e.message}")
-            null
+            return null
         }
     }
 }
