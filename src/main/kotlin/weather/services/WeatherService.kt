@@ -44,7 +44,6 @@ class WeatherService(
                 parseAndSaveWeatherData(responseBody)
             }
         } catch (e: IOException) {
-            // Log or handle the exception accordingly
         }
     }
 
