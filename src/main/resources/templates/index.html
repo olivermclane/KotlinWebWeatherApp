@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Weather Data</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #aiResponse {
+            text-wrap: normal;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">AI Weather Tool</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <form class="d-flex" id="weatherForm" th:action="@{/weather}" method="post">
+                <input class="form-control me-2" type="search" placeholder="Country" aria-label="Country" id="country"
+                       name="country" required>
+                <input class="form-control me-2" type="search" placeholder="City" aria-label="City" id="city"
+                       name="city" required>
+                <input class="form-control me-2" type="search" placeholder="State" aria-label="State" id="state"
+                       name="state"required>
+                <button class="btn btn-outline-success me-2" type="submit">Get Weather</button>
+                <button id="getLocationBtn" class="btn btn-outline-primary me-2" type="button">Get Location</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <div class="mb-3">
+        <h1 class="mb-4">AI Weather Data</h1>
+    </div>
+
+    <!-- Graphs -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <!-- Humidity Chart -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Humidity</h5>
+                    <canvas id="humidityChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            <!-- Temperature Chart -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Temperature</h5>
+                    <canvas id="temperatureChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            <!-- Wind Speed Chart -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Wind Speed</h5>
+                    <canvas id="windSpeedChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">AI Forecast Outlook</h5>
+                    <p class="card-text" id="aiResponse" th:text="${aiData}"></p>
+                </div>
+            </div>
+        </div>
+        <!-- Weather Tiles -->
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-md-6 mb-4" th:each="weatherData, iterationStatus : ${weatherData}">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title"
+                                th:text="${weatherData.city} + ', ' + ${weatherData.countryCode}"></h5>
+                            <img th:src="'https://openweathermap.org/img/wn/' + ${weatherData.weatherCode} + '@2x.png'"
+                                 alt="Weather Icon">
+
+                            <p class="card-text" th:text="'Temperature: ' + ${weatherData.temperature} + '°C'"></p>
+                            <p class="card-text"
+                               th:text="'Weather Description: ' + ${weatherData.weatherDescription}"></p>
+                            <p class="card-text" th:text="'Humidity: ' + ${weatherData.humidity} + '%'"></p>
+                            <p class="card-text" th:text="'Wind Speed: ' + ${weatherData.windSpeed} + ' m/s'"></p>
+                            <p class="card-text" th:text="'Date: ' + ${weatherData.date}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Bootstrap JS (optional) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var weatherDataArray = /*[[${weatherData}]]*/ [];
+    /*]]>*/
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var humidities = [];
+        var temperatures = [];
+        var windSpeeds = [];
+        var dates = [];
+        weatherDataArray.forEach(function (data) {
+            humidities.push(data.humidity);
+            temperatures.push(data.temperature);
+            windSpeeds.push(data.windSpeed);
+            dates.push(data.date);
+        });
+
+        var humidityCtx = document.getElementById('humidityChart').getContext('2d');
+        var humidityChart = new Chart(humidityCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Humidity (%)',
+                    data: humidities,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+        var temperatureCtx = document.getElementById('temperatureChart').getContext('2d');
+        var temperatureChart = new Chart(temperatureCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Temperature (°C)',
+                    data: temperatures,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+        var windSpeedCtx = document.getElementById('windSpeedChart').getContext('2d');
+        var windSpeedChart = new Chart(windSpeedCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Wind Speed (m/s)',
+                    data: windSpeeds,
+                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    });
+    document.getElementById('weatherForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent form submission
+
+        const country = document.getElementById('country').value.trim();
+        const city = document.getElementById('city').value.trim();
+        const state = document.getElementById('state').value.trim();
+
+        if (country === '') {
+            alert('Please enter a country.');
+            return;
+        }
+
+        if (city === '') {
+            alert('Please enter a city.');
+            return;
+        }
+
+        validateLocation(city, country, state);
+    });
+
+    function validateLocation(city, country, state) {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&country=${encodeURIComponent(country)}&city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (Array.isArray(data) && data.length > 0 && data[0].hasOwnProperty('place_id')) {
+                    // Valid location
+                    document.getElementById('weatherForm').submit(); // Proceed with form submission
+                } else {
+                    alert('Invalid location. Please enter a valid city, state, and country.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error validating location.');
+            });
+    }
+
+    document.getElementById('getLocationBtn').addEventListener('click', function () {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition, showError);
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    });
+
+    function showPosition(position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        // Reverse geocoding
+        fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`)
+            .then(response => response.json())
+            .then(data => {
+                const country = data.countryCode;
+                const city = data.city;
+                const state = data.principalSubdivision;
+
+                // Populate input fields
+                document.getElementById('country').value = country;
+                document.getElementById('city').value = city;
+                document.getElementById('state').value = state;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error retrieving location information.');
+            });
+    }
+
+    function showError(error) {
+        switch (error.code) {
+            case error.PERMISSION_DENIED:
+                alert("User denied the request for Geolocation.");
+                break;
+            case error.POSITION_UNAVAILABLE:
+                alert("Location information is unavailable.");
+                break;
+            case error.TIMEOUT:
+                alert("The request to get user location timed out.");
+                break;
+            case error.UNKNOWN_ERROR:
+                alert("An unknown error occurred.");
+                break;
+        }
+    }
+</script>
+</body>
+</html>

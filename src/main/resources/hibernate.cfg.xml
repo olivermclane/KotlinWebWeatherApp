@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 5.0//EN" "http://hibernate.org/dtd/hibernate-configuration-5.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">org.h2.Driver</property>
+        <property name="hibernate.connection.url">jdbc:h2:mem:test</property>
+        <property name="hibernate.connection.username">h2-user</property>
+        <property name="hibernate.connection.password">SuperSecrets</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.H2Dialect</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="hibernate.show_sql">true</property>
+        <mapping class="weather.models.WeatherData"/>
+    </session-factory>
+</hibernate-configuration>
